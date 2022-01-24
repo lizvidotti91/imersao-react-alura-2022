@@ -18,4 +18,4 @@ yarn add @skynexui/components
 
 # Dia 01
 
-![Home Page](.images/home. JPG?raw=true "Home Page")
+![Home Page](./images/home.jpg?raw=true "Home Page")
