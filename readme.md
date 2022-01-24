@@ -15,4 +15,7 @@ npm install @skynexui/components
 ou
 yarn add @skynexui/components
 ```
-# imersao-react-alura-2022
+
+# Dia 01
+
+![Home Page]('./images/home. JPG')
