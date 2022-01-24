@@ -18,4 +18,4 @@ yarn add @skynexui/components
 
 # Dia 01
 
-![Home Page](./images/home.jpg?raw=true "Home Page")
+![Home Page](https://raw.githubusercontent.com/lizvidotti91/imersao-react-alura-2022/main/images/home.JPG)
