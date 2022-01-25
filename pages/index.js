@@ -1,34 +1,7 @@
 import { Box, Button, Text, TextField, Image } from '@skynexui/components';
+import React from 'react';
+import { useRouter } from 'next/router';
 import appConfig from '../config.json';
-
-function GlobalStyle() {
-    return (
-        <style global jsx>{`
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-        list-style: none;
-      }
-      body {
-        font-family: 'Open Sans', sans-serif;
-      }
-      /* App fit Height */ 
-      html, body, #__next {
-        min-height: 100vh;
-        display: flex;
-        flex: 1;
-      }
-      #__next {
-        flex: 1;
-      }
-      #__next > * {
-        flex: 1;
-      }
-      /* ./App fit Height */ 
-    `}</style>
-    );
-}
 
 function Titulo(props) {
     const Tag = props.tag || 'h1';
@@ -47,11 +20,13 @@ function Titulo(props) {
 }
 
 export default function PaginaInicial() {
-    const username = 'lizvidotti91';
+    const routes = useRouter();
+    const [username, setUsername] = React.useState('');
+    const [avatar, setAvatar] = React.useState('https://bolavip.com/__export/1632591823372/sites/bolavip/img/2021/09/25/fall_guys_capa_guiness_crop1632590050104.png_1159711837.png');
+    const user = `https://api.github.com/users/${username}`;
 
     return (
         <>
-            <GlobalStyle />
             <Box
                 styleSheet={{
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -78,6 +53,10 @@ export default function PaginaInicial() {
                     {/* Formulário */}
                     <Box
                         as="form"
+                        onSubmit={(event) => {
+                            event.preventDefault();
+                            routes.push('/chat');
+                        }}
                         styleSheet={{
                             display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
                             width: { xs: '100%', sm: '50%' }, textAlign: 'center', marginBottom: '32px',
@@ -89,6 +68,20 @@ export default function PaginaInicial() {
                         </Text>
 
                         <TextField
+                            value={username}
+                            onChange={(event) => {
+                                const newValue = event.target.value;
+                                setUsername(newValue);
+                                // `https://github.com/${username}.png`
+
+                                fetch(user)
+                                    .then(res => {
+                                        res.json();
+                                    })
+                                    .then(data => {
+                                        console.log(data)
+                                    });
+                            }}
                             placeholder='Digite aqui seu usuário do Github'
                             fullWidth
                             textFieldColors={{
@@ -136,7 +129,7 @@ export default function PaginaInicial() {
                                 borderRadius: '50%',
                                 marginBottom: '16px',
                             }}
-                            src={`https://github.com/${username}.png`}
+                            src={avatar}
                         />
                         <Text
                             variant="body4"
