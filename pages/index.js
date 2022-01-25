@@ -22,8 +22,10 @@ function Titulo(props) {
 export default function PaginaInicial() {
     const routes = useRouter();
     const [username, setUsername] = React.useState('');
-    const [avatar, setAvatar] = React.useState('https://bolavip.com/__export/1632591823372/sites/bolavip/img/2021/09/25/fall_guys_capa_guiness_crop1632590050104.png_1159711837.png');
-    const user = `https://api.github.com/users/${username}`;
+    const [avatar, setAvatar] = React.useState('https://bolavip.com/__export/1632591823372/sites/bolavip/img/2021/09/25/fall_guys_capa_guiness_crop1632590050104.png_1159711837.png')
+    //let avatar = 'https://bolavip.com/__export/1632591823372/sites/bolavip/img/2021/09/25/fall_guys_capa_guiness_crop1632590050104.png_1159711837.png';
+    //let avatar = `https://www.github.com/${username}.png?raw=true`;
+    //const user = `https://api.github.com/users/${username}`;
 
     return (
         <>
@@ -72,15 +74,33 @@ export default function PaginaInicial() {
                             onChange={(event) => {
                                 const newValue = event.target.value;
                                 setUsername(newValue);
+                                setAvatar(`https://www.github.com/${username}.png?raw=true`);
+
+                                function UrlExists(url) {
+                                    var http = new XMLHttpRequest();
+                                    http.open('GET', url);
+                                    http.setRequestHeader('Access-Control-Allow-Origin', 'http://localhost:3000/')
+                                    http.onreadystatechange = () => {
+                                        if (this.status != 404) {
+                                            setAvatar(`https://www.github.com/${username}.png?raw=true`);
+                                            console.log("deu certo")
+                                        } else {
+                                            console.log("deu ruim")
+                                        }
+                                    }
+                                    http.send();
+                                }
+                                UrlExists(avatar)
+
                                 // `https://github.com/${username}.png`
 
-                                fetch(user)
-                                    .then(res => {
-                                        res.json();
-                                    })
-                                    .then(data => {
-                                        console.log(data)
-                                    });
+                                // fetch(user)
+                                //     .then(res => {
+                                //         res.json();
+                                //     })
+                                //     .then(data => {
+                                //         console.log(data)
+                                //     });
                             }}
                             placeholder='Digite aqui seu usuário do Github'
                             fullWidth
