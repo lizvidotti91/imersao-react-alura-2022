@@ -24,7 +24,6 @@ export default function PaginaInicial() {
     const [username, setUsername] = React.useState('');
     const [avatar, setAvatar] = React.useState('https://bolavip.com/__export/1632591823372/sites/bolavip/img/2021/09/25/fall_guys_capa_guiness_crop1632590050104.png_1159711837.png');
     const user = `https://api.github.com/users/${username}`;
-
     return (
         <>
             <Box
@@ -71,17 +70,28 @@ export default function PaginaInicial() {
                             value={username}
                             onChange={(event) => {
                                 const newValue = event.target.value;
-                                setUsername(newValue);
-                                // `https://github.com/${username}.png`
-
-                                fetch(user)
+                                setUsername(newValue);  
+                                // setAvatar(`https://github.com/${username}.png`)
+                                
+                                try{
+                                    fetch(user)
                                     .then(res => {
-                                        res.json();
+                                        if(res.status == 404) {
+                                            setAvatar('https://bolavip.com/__export/1632591823372/sites/bolavip/img/2021/09/25/fall_guys_capa_guiness_crop1632590050104.png_1159711837.png')
+                                        }
+                                        else if (res.status == 403){
+                                            console.log('error', res.status)
+                                                setAvatar(`https://github.com/${username}.png`)
+                                        };
                                     })
-                                    .then(data => {
-                                        console.log(data)
-                                    });
+                                }catch (e){
+                                    console.log(e)
+                                }finally{
+                                    setAvatar(`https://github.com/${username}.png`)
+                                }
+                                
                             }}
+
                             placeholder='Digite aqui seu usuário do Github'
                             fullWidth
                             textFieldColors={{
