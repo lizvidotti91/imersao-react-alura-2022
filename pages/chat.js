@@ -1,5 +1,6 @@
 import { Box, Text, TextField, Image, Button } from '@skynexui/components';
 import React from 'react';
+import { useRouter } from 'next/router';
 import appConfig from '../config.json';
 
 export default function ChatPage() {
@@ -8,7 +9,7 @@ export default function ChatPage() {
 
     function newMessage(value) {
         const message = {
-            id: list.length,
+            id: list.length + 1,
             from: 'lizvidotti91',
             text: value
         }
@@ -28,8 +29,8 @@ export default function ChatPage() {
         <Box
             styleSheet={{
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                backgroundColor: appConfig.theme.colors.primary[500],
-                backgroundImage: `url(https://virtualbackgrounds.site/wp-content/uploads/2020/08/the-matrix-digital-rain.jpg)`,
+                backgroundColor: appConfig.theme.colors.primary[100],
+                backgroundImage: `url(https://cdn2.unrealengine.com/tga-guestcostumes-10beanlineup-final-export-3840x2160-efeb0818b672.jpg)`,
                 backgroundRepeat: 'no-repeat', backgroundSize: 'cover', backgroundBlendMode: 'multiply',
                 color: appConfig.theme.colors.neutrals['000']
             }}
@@ -77,6 +78,10 @@ export default function ChatPage() {
                             display: 'flex',
                             alignItems: 'center',
                         }}
+                        onSubmit={(event) => {
+                            event.preventDefault();
+                            newMessage(message);
+                        }}
                     >
                         <TextField
                             value={message}
@@ -102,6 +107,18 @@ export default function ChatPage() {
                                 backgroundColor: appConfig.theme.colors.neutrals[800],
                                 marginRight: '12px',
                                 color: appConfig.theme.colors.neutrals[200],
+                            }}
+                        />
+
+                        {/* Criando botão de enviar mensagem */}
+                        <Button
+                            type='submit'
+                            label='Enviar'
+                            buttonColors={{
+                                contrastColor: appConfig.theme.colors.neutrals["000"],
+                                mainColor: appConfig.theme.colors.primary[500],
+                                mainColorLight: appConfig.theme.colors.primary[100],
+                                mainColorStrong: appConfig.theme.colors.primary[900],
                             }}
                         />
                     </Box>
@@ -130,7 +147,11 @@ function Header() {
 }
 
 function MessageList(props) {
-    console.log('MessageList', props.mensagens);
+    //const [mensagens, setMensagens] = React.useState(props.mensagens);
+    const routes = useRouter();
+    var mensagens = props.mensagens;
+    console.log(mensagens)
+
     return (
         <Box
             tag="ul"
@@ -144,14 +165,31 @@ function MessageList(props) {
             }}
         >
 
-            {props.mensagens.map((mensagem) => {
+            {mensagens.map((mensagem) => {
                 return (
                     <Text
+                        onClick={(e) => {
+                            //const index = e.target.getAttribute('data-key')
+                            const index = e.target
+                            //console.log('clicou: ', index);
+
+                            index.style.display = 'none'
+                            // function deleteMsg(value) {
+                            //     return props.mensagens.filter((el) => {
+                            //         return el.id != value
+                            //     })
+                            // }
+
+                            // mensagens = deleteMsg(index);
+                            // console.log(mensagens)
+                        }}
                         key={mensagem.id}
+                        data-key={mensagem.id}
                         tag="li"
                         styleSheet={{
                             borderRadius: '5px',
                             padding: '6px',
+                            position: 'relative',
                             marginBottom: '12px',
                             hover: {
                                 backgroundColor: appConfig.theme.colors.neutrals[700],
@@ -188,6 +226,23 @@ function MessageList(props) {
                             </Text>
                         </Box>
                         {mensagem.text}
+
+                        {/* Botão Fechar */}
+                        <Button
+                            styleSheet={{
+                                position: 'absolute',
+                                right: '0',
+                                top: '0'
+                            }}
+                            variant='primary'
+                            colorVariant='neutral'
+                            label='X'
+                        // onClick={(e) => {
+                        //     var x = e.mensagem.id
+                        //     alert('clicou: ', x);
+
+                        // }}
+                        />
                     </Text>
                 );
             })}
