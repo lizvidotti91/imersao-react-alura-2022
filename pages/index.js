@@ -22,10 +22,10 @@ function Titulo(props) {
 export default function PaginaInicial() {
     const routes = useRouter();
     const [username, setUsername] = React.useState('');
-    const [avatar, setAvatar] = React.useState('https://bolavip.com/__export/1632591823372/sites/bolavip/img/2021/09/25/fall_guys_capa_guiness_crop1632590050104.png_1159711837.png')
-    //let avatar = 'https://bolavip.com/__export/1632591823372/sites/bolavip/img/2021/09/25/fall_guys_capa_guiness_crop1632590050104.png_1159711837.png';
-    //let avatar = `https://www.github.com/${username}.png?raw=true`;
-    //const user = `https://api.github.com/users/${username}`;
+    const avatar = `https://www.github.com/${username}.png`;
+    const avatarDefault = 'https://bolavip.com/__export/1632591823372/sites/bolavip/img/2021/09/25/fall_guys_capa_guiness_crop1632590050104.png_1159711837.png'
+    //const [avatar, setAvatar] = React.useState(`https://www.github.com/${username}.png`);
+    //const [avatar, setAvatar] = React.useState('https://bolavip.com/__export/1632591823372/sites/bolavip/img/2021/09/25/fall_guys_capa_guiness_crop1632590050104.png_1159711837.png')
 
     return (
         <>
@@ -74,33 +74,7 @@ export default function PaginaInicial() {
                             onChange={(event) => {
                                 const newValue = event.target.value;
                                 setUsername(newValue);
-                                setAvatar(`https://www.github.com/${username}.png?raw=true`);
-
-                                function UrlExists(url) {
-                                    var http = new XMLHttpRequest();
-                                    http.open('GET', url);
-                                    http.setRequestHeader('Access-Control-Allow-Origin', 'http://localhost:3000/')
-                                    http.onreadystatechange = () => {
-                                        if (this.status != 404) {
-                                            setAvatar(`https://www.github.com/${username}.png?raw=true`);
-                                            console.log("deu certo")
-                                        } else {
-                                            console.log("deu ruim")
-                                        }
-                                    }
-                                    http.send();
-                                }
-                                UrlExists(avatar)
-
-                                // `https://github.com/${username}.png`
-
-                                // fetch(user)
-                                //     .then(res => {
-                                //         res.json();
-                                //     })
-                                //     .then(data => {
-                                //         console.log(data)
-                                //     });
+                                console.log(username)
                             }}
                             placeholder='Digite aqui seu usuário do Github'
                             fullWidth
@@ -148,6 +122,10 @@ export default function PaginaInicial() {
                             styleSheet={{
                                 borderRadius: '50%',
                                 marginBottom: '16px',
+                            }}
+                            onError={(e) => {
+                                //alert('erro')
+                                e.target.src = avatarDefault;
                             }}
                             src={avatar}
                         />
