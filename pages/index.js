@@ -24,6 +24,7 @@ export default function PaginaInicial() {
     const [username, setUsername] = React.useState('');
     const avatar = `https://www.github.com/${username}.png`;
     const avatarDefault = 'https://bolavip.com/__export/1632591823372/sites/bolavip/img/2021/09/25/fall_guys_capa_guiness_crop1632590050104.png_1159711837.png'
+    const name = username;
     //const [avatar, setAvatar] = React.useState(`https://www.github.com/${username}.png`);
     //const [avatar, setAvatar] = React.useState('https://bolavip.com/__export/1632591823372/sites/bolavip/img/2021/09/25/fall_guys_capa_guiness_crop1632590050104.png_1159711837.png')
 
@@ -57,7 +58,7 @@ export default function PaginaInicial() {
                         as="form"
                         onSubmit={(event) => {
                             event.preventDefault();
-                            routes.push('/chat');
+                            routes.push(`/chat?name=${name}`);
                         }}
                         styleSheet={{
                             display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
@@ -88,6 +89,7 @@ export default function PaginaInicial() {
                             }}
                         />
                         <Button
+                            disabled={username.length === 0}
                             type='submit'
                             label='Entrar'
                             fullWidth

@@ -3,25 +3,58 @@ import React from 'react';
 import { useRouter } from 'next/router';
 import appConfig from '../config.json';
 
+import { createClient } from '@supabase/supabase-js';
+
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlhdCI6MTY0MzY2OTU3MSwiZXhwIjoxOTU5MjQ1NTcxfQ.xQZKGkkZjrHwl0u_f66QGlnUF6xLmOkBJq5KS8h3Y8I';
+const SUPABASE_URL = 'https://gzdolgyubfmflpvnubar.supabase.co';
+const supabase_client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
 export default function ChatPage() {
     const [message, setMessage] = React.useState('');
     const [list, setList] = React.useState([]);
+    const query = useRouter();
+    const name = query.query.name;
+
+    // Tudo que foge do fluxo padrão do meu componente
+    // Quando a página carrega, ele é executado
+    // o [] significa que o supabase_client só executa quando a página carrega
+    React.useEffect(() => {
+        // Na minha tabela mensagem, selecionar todos os campos
+        supabase_client.from('mensagens')
+            .select('*')
+            .order('id', { ascending: false })
+            .then(({ data }) => {
+                console.log('dados da consulta: ', data);
+                setList(data);
+            });
+    }, []);
 
     function newMessage(value) {
         const message = {
-            id: list.length + 1,
-            from: 'lizvidotti91',
+            // id: list.length + 1,
+            from: name,
             text: value
         }
-        /* 
-            * Setar todos os valores que eu já tinha
-            * Pega tudo o que já existia na lista de mensagens
-            * Mais a nova mensagem
-        */
-        setList([
-            message,
-            ...list
-        ]);
+
+        // Gravar a nova mensagem no banco de dados do Supabase
+        supabase_client.from('mensagens')
+            .insert([
+                // Tem que ser um objeto com os MESMOS CAMPOS do Supabase
+                message
+            ])
+            .then(({ data }) => {
+                console.log('Gravei: ', data);
+                /* 
+                * Setar todos os valores que eu já tinha
+                * Pega tudo o que já existia na lista de mensagens
+                * Mais a nova mensagem
+            */
+                setList([
+                    data[0],
+                    ...list
+                ]);
+            });
+
         setMessage('');
     }
 
@@ -147,10 +180,8 @@ function Header() {
 }
 
 function MessageList(props) {
-    //const [mensagens, setMensagens] = React.useState(props.mensagens);
     const routes = useRouter();
-    var mensagens = props.mensagens;
-    console.log(mensagens)
+    var messages = props.mensagens;
 
     return (
         <Box
@@ -165,23 +196,23 @@ function MessageList(props) {
             }}
         >
 
-            {mensagens.map((mensagem) => {
+            {messages.map((mensagem) => {
                 return (
                     <Text
                         onClick={(e) => {
-                            //const index = e.target.getAttribute('data-key')
-                            const index = e.target
-                            //console.log('clicou: ', index);
+                            const index = e.target.getAttribute('data-key')
+                            //const index = e.target
+                            console.log('clicou: ', index);
 
-                            index.style.display = 'none'
-                            // function deleteMsg(value) {
-                            //     return props.mensagens.filter((el) => {
-                            //         return el.id != value
-                            //     })
-                            // }
+                            //index.style.display = 'none'
+                            function deleteMsg(value) {
+                                return props.mensagens.filter((el) => {
+                                    return el.id != value
+                                })
+                            }
 
-                            // mensagens = deleteMsg(index);
-                            // console.log(mensagens)
+                            messages = deleteMsg(index);
+                            console.log(messages)
                         }}
                         key={mensagem.id}
                         data-key={mensagem.id}
@@ -209,7 +240,7 @@ function MessageList(props) {
                                     display: 'inline-block',
                                     marginRight: '8px',
                                 }}
-                                src={`https://github.com/vanessametonini.png`}
+                                src={`https://github.com/${mensagem.from}.png`}
                             />
                             <Text tag="strong">
                                 {mensagem.from}
@@ -222,13 +253,13 @@ function MessageList(props) {
                                 }}
                                 tag="span"
                             >
-                                {(new Date().toLocaleDateString())}
+                                {mensagem.created_at.substring(0, 10).split('-').reverse().join('/')}
                             </Text>
                         </Box>
                         {mensagem.text}
 
                         {/* Botão Fechar */}
-                        <Button
+                        {/* <Button
                             styleSheet={{
                                 position: 'absolute',
                                 right: '0',
@@ -242,7 +273,7 @@ function MessageList(props) {
                         //     alert('clicou: ', x);
 
                         // }}
-                        />
+                        /> */}
                     </Text>
                 );
             })}
