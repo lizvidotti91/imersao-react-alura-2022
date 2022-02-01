@@ -23,3 +23,7 @@ yarn add @skynexui/components
 # Dia 02
 
 ![Troca Avatar](./images/dia_2.gif?raw=true)
+
+# Dia 04
+
+Para o backend desse projeto, foi usado o [Supabase](https://supabase.com/)
