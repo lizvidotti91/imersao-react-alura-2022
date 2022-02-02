@@ -1,17 +1,36 @@
-import { Box, Text, TextField, Image, Button } from '@skynexui/components';
+import { Box, TextField, Button } from '@skynexui/components';
 import React from 'react';
 import { useRouter } from 'next/router';
 import appConfig from '../config.json';
 
 import { createClient } from '@supabase/supabase-js';
+import { Header } from '../src/components/Header';
+import { MessageList } from '../src/components/MessageList';
+import { ButtonSendSticker } from '../src/components/ButtonSendSticker';
 
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlhdCI6MTY0MzY2OTU3MSwiZXhwIjoxOTU5MjQ1NTcxfQ.xQZKGkkZjrHwl0u_f66QGlnUF6xLmOkBJq5KS8h3Y8I';
 const SUPABASE_URL = 'https://gzdolgyubfmflpvnubar.supabase.co';
 const supabase_client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+function realTimeMsg(newMessage) {
+    return supabase_client
+        .from('mensagens')
+        .on('INSERT', (res) => {
+            //alert('Você tem uma nova mensagem');
+            newMessage(res.new);
+        })
+        .subscribe();
+}
+
 export default function ChatPage() {
     const [message, setMessage] = React.useState('');
-    const [list, setList] = React.useState([]);
+    const [list, setList] = React.useState([
+        // {
+        //     id: 1,
+        //     text: `:sticker:${appConfig.stickers[0]}`,
+        //     from: 'lizvidotti91'
+        // }
+    ]);
     const query = useRouter();
     const name = query.query.name;
 
@@ -24,9 +43,23 @@ export default function ChatPage() {
             .select('*')
             .order('id', { ascending: false })
             .then(({ data }) => {
-                console.log('dados da consulta: ', data);
+                //console.log('dados da consulta: ', data);
                 setList(data);
             });
+
+        realTimeMsg((msg) => {
+            /* 
+                * Setar todos os valores que eu já tinha
+                * Pega tudo o que já existia na lista de mensagens
+                * Mais a nova mensagem
+            */
+            setList((currentList) => {
+                return [
+                    msg,
+                    ...currentList
+                ]
+            });
+        })
     }, []);
 
     function newMessage(value) {
@@ -44,15 +77,6 @@ export default function ChatPage() {
             ])
             .then(({ data }) => {
                 console.log('Gravei: ', data);
-                /* 
-                * Setar todos os valores que eu já tinha
-                * Pega tudo o que já existia na lista de mensagens
-                * Mais a nova mensagem
-            */
-                setList([
-                    data[0],
-                    ...list
-                ]);
             });
 
         setMessage('');
@@ -97,13 +121,6 @@ export default function ChatPage() {
                 >
 
                     <MessageList mensagens={list} />
-                    {/* {list.map((msg) => {
-                        return (
-                            <li key={msg.id}>
-                                {msg.from}: {msg.text}
-                            </li>
-                        );
-                    })} */}
 
                     <Box
                         as="form"
@@ -116,6 +133,19 @@ export default function ChatPage() {
                             newMessage(message);
                         }}
                     >
+                        {/* Botão para enviar stickers */}
+                        {/* 
+                        *   Callback
+                        *   Chamada de retorno
+                        *   Quando algo que quero terminou, ele executa a função que eu passei
+                        */}
+                        <ButtonSendSticker
+                            onStickerClick={(sticker) => {
+                                newMessage(`:sticker:${sticker}`)
+                            }}
+                        />
+
+                        {/* Input para escrever a mensagem */}
                         <TextField
                             value={message}
                             placeholder="Insira sua mensagem aqui..."
@@ -157,126 +187,6 @@ export default function ChatPage() {
                     </Box>
                 </Box>
             </Box>
-        </Box>
-    )
-}
-
-function Header() {
-    return (
-        <>
-            <Box styleSheet={{ width: '100%', marginBottom: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }} >
-                <Text variant='heading5'>
-                    Chat
-                </Text>
-                <Button
-                    variant='tertiary'
-                    colorVariant='neutral'
-                    label='Logout'
-                    href="/"
-                />
-            </Box>
-        </>
-    )
-}
-
-function MessageList(props) {
-    const routes = useRouter();
-    var messages = props.mensagens;
-
-    return (
-        <Box
-            tag="ul"
-            styleSheet={{
-                overflow: 'scroll',
-                display: 'flex',
-                flexDirection: 'column-reverse',
-                flex: 1,
-                color: appConfig.theme.colors.neutrals["000"],
-                marginBottom: '16px',
-            }}
-        >
-
-            {messages.map((mensagem) => {
-                return (
-                    <Text
-                        onClick={(e) => {
-                            const index = e.target.getAttribute('data-key')
-                            //const index = e.target
-                            console.log('clicou: ', index);
-
-                            //index.style.display = 'none'
-                            function deleteMsg(value) {
-                                return props.mensagens.filter((el) => {
-                                    return el.id != value
-                                })
-                            }
-
-                            messages = deleteMsg(index);
-                            console.log(messages)
-                        }}
-                        key={mensagem.id}
-                        data-key={mensagem.id}
-                        tag="li"
-                        styleSheet={{
-                            borderRadius: '5px',
-                            padding: '6px',
-                            position: 'relative',
-                            marginBottom: '12px',
-                            hover: {
-                                backgroundColor: appConfig.theme.colors.neutrals[700],
-                            }
-                        }}
-                    >
-                        <Box
-                            styleSheet={{
-                                marginBottom: '8px',
-                            }}
-                        >
-                            <Image
-                                styleSheet={{
-                                    width: '20px',
-                                    height: '20px',
-                                    borderRadius: '50%',
-                                    display: 'inline-block',
-                                    marginRight: '8px',
-                                }}
-                                src={`https://github.com/${mensagem.from}.png`}
-                            />
-                            <Text tag="strong">
-                                {mensagem.from}
-                            </Text>
-                            <Text
-                                styleSheet={{
-                                    fontSize: '10px',
-                                    marginLeft: '8px',
-                                    color: appConfig.theme.colors.neutrals[300],
-                                }}
-                                tag="span"
-                            >
-                                {mensagem.created_at.substring(0, 10).split('-').reverse().join('/')}
-                            </Text>
-                        </Box>
-                        {mensagem.text}
-
-                        {/* Botão Fechar */}
-                        {/* <Button
-                            styleSheet={{
-                                position: 'absolute',
-                                right: '0',
-                                top: '0'
-                            }}
-                            variant='primary'
-                            colorVariant='neutral'
-                            label='X'
-                        // onClick={(e) => {
-                        //     var x = e.mensagem.id
-                        //     alert('clicou: ', x);
-
-                        // }}
-                        /> */}
-                    </Text>
-                );
-            })}
         </Box>
     )
 }
